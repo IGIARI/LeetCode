@@ -1,12 +1,7 @@
+public class Solution {
 	public boolean isMatch(String s, String p) {
-		// when p is empty
-		if (p.equals("")) {
-			return s.equals(p) ? true : false;
-		}
-		
-		// check if the regular expression is valid
-		// 0: begin or after *
-		// 1: char
+		// compiler, checks if the regular expression is valid
+		// status: 0. begin or after '*', 1. any char except '*'
 		int status = 0;
 		int i = 0;
 		boolean error = false;
@@ -21,9 +16,7 @@
 				}
 				break;
 			case 1:
-				if (c == '*') {
-					status = 0;
-				} 
+				status = (c == '*') ? 0 : 1;
 				break;
 			default:
 				error = true;
@@ -39,50 +32,44 @@
 
 	// can also be accepted by submitting this function only
 	private boolean match(String s, String p) {
-		// when p has less than 2 chars
-		if (p.length() <= 1) {
-			if (s.length() == 1 && p.equals(".")) {
-				return true;
-			}
+		// when p is empty
+		if (p.length() <= 0) {
 			return s.equals(p);
 		}
 		
-		// p has at least 2 chars
+		// when p is not empty
 		char c = p.charAt(0);
-		char n = p.charAt(1);
-		int i = 0, j = 0;
+		// see if the second char is '*'
+		char n = (p.length() >= 2) ? p.charAt(1) : 0;
 		if (n == '*') {
 			// match multiple chars
-			j += 2;
-			if (match(s.substring(i, s.length()), p.substring(j, p.length()))) {
+			// index i for s, j for p
+		    int i = 0, j = 2;
+			// let 'c*' match empty string
+			if (match(s, p.substring(j, p.length()))) {
 				return true;
 			}
-			if (c == '.') {
-				while (i < s.length()) {
-					if (match(s.substring(i + 1, s.length()), p.substring(j, p.length()))) {
-						return true;
-					}
-					i++;
+			// let 'c*' match at least 1 char
+			while (i < s.length() && isEqual(s.charAt(i), c)) {
+				if (match(s.substring(i + 1, s.length()), p.substring(j, p.length()))) {
+					return true;
 				}
-			} else {
-				while (i < s.length() && c == s.charAt(i)) {
-					if (match(s.substring(i + 1, s.length()), p.substring(j, p.length()))) {
-						return true;
-					}
-					i++;
-				}
+				i++;
 			}
 		} else {
 			// match single char
 			if (s.length() <= 0) {
 				return false;
 			}
-			if (c != '.' && c != s.charAt(i)) {
+			if (c != '.' && c != s.charAt(0)) {
 				return false;
 			}
-			i++;
-			j++;
-			return match(s.substring(i, s.length()), p.substring(j, p.length()));
+			return match(s.substring(1, s.length()), p.substring(1, p.length()));
 		}
 		return false;
 	}
+	
+	private boolean isEqual(char s, char p) {
+	    return (p == '.') ? true : (p == s);
+	}
+}
