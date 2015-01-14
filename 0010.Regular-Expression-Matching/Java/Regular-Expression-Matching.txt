@@ -1,0 +1,88 @@
+	public boolean isMatch(String s, String p) {
+		// when p is empty
+		if (p.equals("")) {
+			return s.equals(p) ? true : false;
+		}
+		
+		// check if the regular expression is valid
+		// 0: begin or after *
+		// 1: char
+		int status = 0;
+		int i = 0;
+		boolean error = false;
+		while (!error && i < p.length()) {
+			char c = p.charAt(i);
+			switch (status) {
+			case 0:
+				if (c == '*') {
+					error = true;
+				} else {
+					status = 1;
+				}
+				break;
+			case 1:
+				if (c == '*') {
+					status = 0;
+				} 
+				break;
+			default:
+				error = true;
+			}
+			i++;
+		}
+		if  (error) {
+			return false;
+		}
+		
+		return match(s, p);
+	}
+
+	// can also be accepted by submitting this function only
+	private boolean match(String s, String p) {
+		// when p has less than 2 chars
+		if (p.length() <= 1) {
+			if (s.length() == 1 && p.equals(".")) {
+				return true;
+			}
+			return s.equals(p);
+		}
+		
+		// p has at least 2 chars
+		char c = p.charAt(0);
+		char n = p.charAt(1);
+		int i = 0, j = 0;
+		if (n == '*') {
+			// match multiple chars
+			j += 2;
+			if (match(s.substring(i, s.length()), p.substring(j, p.length()))) {
+				return true;
+			}
+			if (c == '.') {
+				while (i < s.length()) {
+					if (match(s.substring(i + 1, s.length()), p.substring(j, p.length()))) {
+						return true;
+					}
+					i++;
+				}
+			} else {
+				while (i < s.length() && c == s.charAt(i)) {
+					if (match(s.substring(i + 1, s.length()), p.substring(j, p.length()))) {
+						return true;
+					}
+					i++;
+				}
+			}
+		} else {
+			// match single char
+			if (s.length() <= 0) {
+				return false;
+			}
+			if (c != '.' && c != s.charAt(i)) {
+				return false;
+			}
+			i++;
+			j++;
+			return match(s.substring(i, s.length()), p.substring(j, p.length()));
+		}
+		return false;
+	}
